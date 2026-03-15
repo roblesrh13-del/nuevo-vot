@@ -21,7 +21,12 @@ import {
   Calendar,
   Clock,
   ArrowUpRight,
-  ArrowDownRight
+  ArrowDownRight,
+  Settings,
+  X,
+  Eye,
+  EyeOff,
+  CheckCircle2
 } from 'lucide-react';
 
 declare global {
@@ -40,9 +45,17 @@ const App: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [watchlist, setWatchlist] = useState<TradingSignal[]>([]);
   const [hasApiKey, setHasApiKey] = useState<boolean>(true);
+  const [showSettings, setShowSettings] = useState(false);
+  const [manualKey, setManualKey] = useState(localStorage.getItem('CUSTOM_GEMINI_API_KEY') || '');
+  const [showKey, setShowKey] = useState(false);
 
   useEffect(() => {
     const checkApiKey = async () => {
+      const storedKey = localStorage.getItem('CUSTOM_GEMINI_API_KEY');
+      if (storedKey) {
+        setHasApiKey(true);
+        return;
+      }
       if (window.aistudio?.hasSelectedApiKey) {
         const hasKey = await window.aistudio.hasSelectedApiKey();
         setHasApiKey(hasKey);
@@ -51,14 +64,22 @@ const App: React.FC = () => {
     checkApiKey();
   }, []);
 
-  const handleOpenKeySelector = async () => {
-    if (window.aistudio?.openSelectKey) {
-      await window.aistudio.openSelectKey();
+  const saveManualKey = () => {
+    if (manualKey.trim()) {
+      localStorage.setItem('CUSTOM_GEMINI_API_KEY', manualKey.trim());
       setHasApiKey(true);
-      // Refresh analysis if it was empty
-      if (!analysis) {
-        fetchAnalysis();
-      }
+      setShowSettings(false);
+      fetchAnalysis();
+    } else {
+      localStorage.removeItem('CUSTOM_GEMINI_API_KEY');
+      // Re-check platform key
+      const checkPlatform = async () => {
+        if (window.aistudio?.hasSelectedApiKey) {
+          const hasKey = await window.aistudio.hasSelectedApiKey();
+          setHasApiKey(hasKey);
+        }
+      };
+      checkPlatform();
     }
   };
 
@@ -73,9 +94,10 @@ const App: React.FC = () => {
     try {
       const data = await getMarketAnalysis(query);
       setAnalysis(data);
+      setHasApiKey(true);
     } catch (err: any) {
       const errorMessage = err.message || '';
-      if (errorMessage.includes('Requested entity was not found') || errorMessage.includes('API_KEY')) {
+      if (errorMessage.includes('Requested entity was not found') || errorMessage.includes('API_KEY') || errorMessage.includes('API_KEY_MISSING')) {
         setHasApiKey(false);
         setError('Configura tu API Key de Gemini para continuar.');
       } else {
@@ -146,7 +168,7 @@ const App: React.FC = () => {
           <div className="flex items-center gap-4">
             {!hasApiKey && (
               <button 
-                onClick={handleOpenKeySelector}
+                onClick={() => setShowSettings(true)}
                 className="flex items-center gap-2 bg-amber-500/10 text-amber-500 border border-amber-500/20 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-amber-500/20 transition-all"
               >
                 <ShieldAlert className="w-3.5 h-3.5" />
@@ -154,11 +176,11 @@ const App: React.FC = () => {
               </button>
             )}
             <button 
-              onClick={handleOpenKeySelector}
+              onClick={() => setShowSettings(true)}
               className="p-2 hover:bg-slate-800 rounded-full transition-colors text-slate-400"
-              title="Configurar API Key"
+              title="Configuración de API"
             >
-              <Key className="w-5 h-5" />
+              <Settings className="w-5 h-5" />
             </button>
             <button 
               onClick={() => fetchAnalysis()}
@@ -190,11 +212,93 @@ const App: React.FC = () => {
               </div>
             </div>
             <button 
-              onClick={handleOpenKeySelector}
+              onClick={() => setShowSettings(true)}
               className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-6 py-3 rounded-2xl font-black transition-all whitespace-nowrap"
             >
               CONFIGURAR AHORA
             </button>
+          </div>
+        )}
+
+        {/* Modal de Configuración */}
+        {showSettings && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+            <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-sm" onClick={() => setShowSettings(false)}></div>
+            <div className="relative bg-slate-900 border border-slate-800 w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl">
+              <button 
+                onClick={() => setShowSettings(false)}
+                className="absolute top-6 right-6 p-2 hover:bg-slate-800 rounded-full text-slate-500 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-3 bg-blue-500/20 rounded-2xl text-blue-400">
+                  <Settings className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-black text-white uppercase tracking-tight">Configuración de API</h3>
+              </div>
+
+              <div className="space-y-6">
+                {/* Opción Automática */}
+                <div className="bg-slate-950 p-5 rounded-3xl border border-slate-800">
+                  <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-3">Método Recomendado</h4>
+                  <button 
+                    onClick={async () => {
+                      if (window.aistudio?.openSelectKey) {
+                        await window.aistudio.openSelectKey();
+                        setHasApiKey(true);
+                        setShowSettings(false);
+                        fetchAnalysis();
+                      }
+                    }}
+                    className="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all"
+                  >
+                    <Zap className="w-4 h-4" />
+                    Selector de AI Studio
+                  </button>
+                  <p className="text-[10px] text-slate-600 mt-3 leading-tight">
+                    Utiliza el gestor seguro de la plataforma para seleccionar una clave de tus proyectos de Google Cloud.
+                  </p>
+                </div>
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-slate-800"></span></div>
+                  <div className="relative flex justify-center text-[10px] uppercase font-black text-slate-700"><span className="bg-slate-900 px-4 italic">o introduce manualmente</span></div>
+                </div>
+
+                {/* Opción Manual */}
+                <div className="space-y-4">
+                  <div className="relative">
+                    <input 
+                      type={showKey ? "text" : "password"}
+                      value={manualKey}
+                      onChange={(e) => setManualKey(e.target.value)}
+                      placeholder="Pega tu API Key aquí..."
+                      className="w-full bg-slate-950 border border-slate-800 rounded-2xl py-4 pl-5 pr-12 text-sm text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-mono"
+                    />
+                    <button 
+                      onClick={() => setShowKey(!showKey)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-400"
+                    >
+                      {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  
+                  <button 
+                    onClick={saveManualKey}
+                    className="w-full bg-slate-800 hover:bg-slate-700 text-white py-4 rounded-2xl font-black text-sm transition-all flex items-center justify-center gap-2"
+                  >
+                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                    GUARDAR CLAVE MANUAL
+                  </button>
+                </div>
+
+                <p className="text-[10px] text-slate-500 text-center">
+                  Tu clave se guarda localmente en este navegador y nunca se envía a nuestros servidores.
+                </p>
+              </div>
+            </div>
           </div>
         )}
         

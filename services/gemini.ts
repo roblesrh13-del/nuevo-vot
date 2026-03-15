@@ -3,7 +3,14 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { MarketAnalysis } from "../types";
 
 export const getMarketAnalysis = async (query?: string): Promise<MarketAnalysis> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
+  const manualKey = localStorage.getItem('CUSTOM_GEMINI_API_KEY');
+  const apiKey = manualKey || (process.env.API_KEY as string);
+  
+  if (!apiKey || apiKey === 'undefined') {
+    throw new Error('API_KEY_MISSING');
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
   const model = "gemini-3-flash-preview";
   
   const systemInstruction = `
