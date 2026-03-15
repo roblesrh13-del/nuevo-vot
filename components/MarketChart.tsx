@@ -1,44 +1,76 @@
 
-import React from 'react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import React, { useEffect, useRef, useId } from 'react';
 
-const data = [
-  { name: '09:00', price: 4200 },
-  { name: '10:00', price: 4150 },
-  { name: '11:00', price: 4300 },
-  { name: '12:00', price: 4280 },
-  { name: '13:00', price: 4400 },
-  { name: '14:00', price: 4350 },
-  { name: '15:00', price: 4500 },
-  { name: '16:00', price: 4480 },
-];
+declare global {
+  interface Window {
+    TradingView: any;
+  }
+}
+
+const symbolMap: { [key: string]: string } = {
+  'Apple': 'NASDAQ:AAPL',
+  'NVIDIA': 'NASDAQ:NVDA',
+  'Tesla': 'NASDAQ:TSLA',
+  'Microsoft': 'NASDAQ:MSFT',
+  'Amazon': 'NASDAQ:AMZN',
+  'Google': 'NASDAQ:GOOGL',
+  'Meta': 'NASDAQ:META',
+  'Petróleo Brent': 'TVC:UKOIL',
+  'Oro': 'TVC:GOLD',
+  'Bitcoin': 'BINANCE:BTCUSDT',
+  'Ethereum': 'BINANCE:ETHUSDT',
+  'S&P 500': 'SPX',
+  'Nasdaq 100': 'NAS100',
+  'Dow Jones': 'DJI',
+  'EUR/USD': 'FX:EURUSD',
+  'GBP/USD': 'FX:GBPUSD',
+  'USD/JPY': 'FX:USDJPY',
+};
 
 export const MarketChart: React.FC<{ symbol: string }> = ({ symbol }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const uniqueId = useId().replace(/:/g, '');
+  const containerId = `tv_chart_${uniqueId}`;
+
+  useEffect(() => {
+    const initWidget = () => {
+      if (containerRef.current && window.TradingView) {
+        const tvSymbol = symbolMap[symbol] || symbol;
+        
+        new window.TradingView.widget({
+          "autosize": true,
+          "symbol": tvSymbol,
+          "interval": "H",
+          "timezone": "Etc/UTC",
+          "theme": "dark",
+          "style": "1",
+          "locale": "es",
+          "toolbar_bg": "#f1f3f6",
+          "enable_publishing": false,
+          "hide_top_toolbar": true,
+          "save_image": false,
+          "container_id": containerId,
+          "backgroundColor": "rgba(15, 23, 42, 0.5)",
+          "gridColor": "rgba(30, 41, 59, 0.5)",
+        });
+      }
+    };
+
+    if (!window.TradingView) {
+      const script = document.createElement('script');
+      script.id = 'tradingview-widget-script';
+      script.src = 'https://s3.tradingview.com/tv.js';
+      script.async = true;
+      script.onload = initWidget;
+      document.head.appendChild(script);
+    } else {
+      initWidget();
+    }
+  }, [symbol, containerId]);
+
   return (
-    <div className="h-64 w-full bg-slate-900/50 rounded-xl p-4 border border-slate-800">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-bold text-blue-400">Rendimiento de {symbol}</h3>
-        <span className="text-xs text-slate-400">Simulación en Tiempo Real</span>
-      </div>
-      <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={data}>
-          <defs>
-            <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-              <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-            </linearGradient>
-          </defs>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
-          <XAxis dataKey="name" stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
-          <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} domain={['auto', 'auto']} />
-          <Tooltip 
-            contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px' }}
-            itemStyle={{ color: '#3b82f6' }}
-            labelStyle={{ color: '#64748b' }}
-          />
-          <Area type="monotone" dataKey="price" stroke="#3b82f6" fillOpacity={1} fill="url(#colorPrice)" strokeWidth={2} />
-        </AreaChart>
-      </ResponsiveContainer>
+    <div className="h-80 w-full bg-slate-900/50 rounded-3xl p-1 border border-slate-800 overflow-hidden shadow-inner">
+      <div id={containerId} ref={containerRef} className="w-full h-full" />
     </div>
   );
 };

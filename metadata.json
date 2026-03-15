@@ -1,5 +1,5 @@
 {
-  "name": "PlusTrader IA - Inteligencia de Mercado y Predicciones",
-  "description": "Una herramienta de análisis bursátil de alto rendimiento que utiliza la IA de Gemini para monitorear eventos geopolíticos, acciones corporativas globales y proporcionar señales de trading predictivas optimizadas para plataformas Plus500.",
+  "name": "VisionTradeNoticias",
+  "description": "Una herramienta de análisis bursátil de alto rendimiento que utiliza la IA de Gemini para monitorear eventos geopolíticos, acciones corporativas globales y proporcionar señales de trading predictivas.",
   "requestFramePermissions": []
 }

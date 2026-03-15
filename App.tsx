@@ -14,7 +14,6 @@ import {
   MessageSquareText,
   DollarSign,
   ChevronRight,
-  PlusCircle,
   Bookmark,
   BookmarkCheck,
   ExternalLink,
@@ -161,7 +160,7 @@ const App: React.FC = () => {
           <div className="flex items-center gap-2">
             <Zap className="w-6 h-6 text-blue-500" />
             <h1 className="text-xl font-black tracking-tight text-white uppercase">
-              Plus<span className="text-blue-500">Trader</span> <span className="text-[10px] bg-blue-600/20 text-blue-400 px-1.5 py-0.5 rounded ml-2">PREDICCIÓN GEOPOLÍTICA</span>
+              VisionTrade<span className="text-blue-500">Noticias</span> <span className="text-[10px] bg-blue-600/20 text-blue-400 px-1.5 py-0.5 rounded ml-2">PREDICCIÓN GEOPOLÍTICA</span>
             </h1>
           </div>
           
@@ -189,10 +188,7 @@ const App: React.FC = () => {
             >
               <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
             </button>
-            <button className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-bold transition-all text-sm flex items-center gap-2">
-              <PlusCircle className="w-4 h-4" />
-              Plus500 Live
-            </button>
+
           </div>
         </div>
       </nav>
@@ -349,7 +345,7 @@ const App: React.FC = () => {
             </div>
             <div className="text-center">
               <p className="text-xl font-black text-white uppercase tracking-tighter">Buscando oportunidades de inversión...</p>
-              <p className="text-slate-500 text-sm mt-2">Correlacionando eventos geopolíticos con activos de Plus500</p>
+              <p className="text-slate-500 text-sm mt-2">Correlacionando eventos geopolíticos con activos globales</p>
             </div>
           </div>
         ) : (
@@ -523,10 +519,7 @@ const App: React.FC = () => {
                          </div>
                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">Oportunidad detectada por correlación geopolítica</p>
                       </div>
-                      <button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white px-10 py-4 rounded-[1.5rem] font-black text-sm transition-all flex items-center justify-center gap-3 group shadow-xl shadow-blue-500/20">
-                        ABRIR EN PLUS500
-                        <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                      </button>
+
                     </div>
                   </div>
                 ))}

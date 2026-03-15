@@ -19,7 +19,7 @@ export const getMarketAnalysis = async (query?: string): Promise<MarketAnalysis>
     
     REGLAS ESTRICTAS:
     1. Para CADA noticia que listes en 'newsContext', DEBES incluir una 'recomendacionDirecta' con:
-       - asset: La empresa o activo específico de Plus500 (ej: 'Apple', 'Petróleo Brent', 'NVIDIA').
+       - asset: La empresa o activo específico (ej: 'Apple', 'Petróleo Brent', 'NVIDIA').
        - action: 'COMPRA' o 'VENTA'.
        - target: Un precio objetivo breve.
     2. Si hablas de Venezuela, vincula con Petróleo, Repsol o Chevron. 
@@ -28,7 +28,7 @@ export const getMarketAnalysis = async (query?: string): Promise<MarketAnalysis>
     5. Utiliza googleSearch para que los datos sean de HOY mismo.
   `;
 
-  const prompt = query || "Analiza las noticias de ÚLTIMA HORA sobre aranceles de Trump, la situación en Venezuela y conflictos en Oriente Medio. Para cada noticia, dime exactamente en qué empresa debo comprar o vender en Plus500.";
+  const prompt = query || "Analiza las noticias de ÚLTIMA HORA sobre aranceles de Trump, la situación en Venezuela y conflictos en Oriente Medio. Para cada noticia, dime exactamente en qué empresa debo comprar o vender.";
 
   const response = await ai.models.generateContent({
     model,
